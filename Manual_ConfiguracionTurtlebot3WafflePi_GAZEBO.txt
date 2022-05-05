@@ -1,0 +1,34 @@
+Uso del Turtlebot3 en simulación GAZEBO
+
+Dentro de este manual se presentarán los comandos de instalación del Turtlebot3 Waffle Pi en ROS con 
+la versión de noetic. Además, de los comandos para teleoperarlo por medio del teclado
+de la terminal en el entorno de Gazebo.
+
+-> Instalar el paquete de simulación
+El paquete de simulación TurtleBot3 requiere los paquetes turtlebot3 y turtlebot3_msgs como requisito previo. 
+Sin estos paquetes de prerrequisitos, la Simulación no puede ser lanzada.
+
+$ cd ~/catkin_ws/src/
+$ git clone -b noetic-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+$ cd ~/catkin_ws && catkin_make
+
+-> Lanzar el mundo de la simulación
+Hay tres entornos de simulación preparados para TurtleBot3. 
+Seleccione uno de estos entornos para iniciar Gazebo.
+
+1. Empty World
+$ export TURTLEBOT3_MODEL= waffle_pi
+$ roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
+
+2. TurtleBot3 World
+$ export TURTLEBOT3_MODEL=waffle_pi
+$ roslaunch turtlebot3_gazebo turtlebot3_world.launch
+
+3. TurtleBot3 House
+$ export TURTLEBOT3_MODEL=waffle_pi
+$ roslaunch turtlebot3_gazebo turtlebot3_house.launch
+
+-> Teleoperar TurtleBot3
+Para teleoperar el TurtleBot3 con el teclado, lanza el nodo de teleoperación 
+con el siguiente comando en una nueva ventana de terminal.
+$ roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch

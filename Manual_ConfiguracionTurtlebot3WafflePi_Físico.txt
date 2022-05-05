@@ -1,0 +1,125 @@
+Turtlebot3 Waffle PI - Arranque físico
+
+Dentro de este documento se presentarán los pasos para realizar las conexiones de IP entre
+terminal y robot, junto al proceso de navegacion autonoma. Todo en esto basado en los documentos
+vistos en clase y proporcionado por Eduardo Salazar Hidalgo de la Benémrita Universidad
+Autónoma de Puebla.
+
+El primer paso consiste en establecer la comunicacion entre la computadora remota y el
+Turtlebot. El proceso consiste basicamente editar las lineas ROS MASTER URI y
+ROS HOSTNAME del archivo bashrc para ambos dispositivos.No esta de más mencionar que ambos dispositivos deben estar conectados a la misma
+red.
+
+
+-> PC REMOTA 
+Abrimos una terminal con la combinacion de teclas ctrl+alt+t y 
+dentro de la misma ingresamos el siguiente comando con el objetivo de 
+obtener la direccion IP de la computadora.
+$ ifconfig
+
+A continuacion abrimos una nueva terminal con la combinaci´on de teclas ctrl+shift+t e
+ingresamos el siguiente comando:
+$ gedit ~/.bashrc
+
+Con lo anterior nos abrira el archivo bashrc, nos dirigimos a la parte inferior del mismo
+y editamos las lineas de codigo correspondientes de acuerdo al siguiente ejemplo ilustrativo.
+
+export ROS_MASTER_URI=http://140.148.21.195:11311
+export ROS_HOSTNAME=140.148.21.195
+
+Guardamos los cambios y cerramos el archivo. Por ultimo aplicamos los cambios realizados
+ejecutando el siguiente comando en la terminal.
+$ source ~/.bashrc
+
+
+
+-> TURTLEBOT3
+Para este caso se debe seguir un procedimiento parecido al anterior. Sin embargo, es
+necesario tener en cuenta que el robot debe estar conectado a la fuente de alimentacion.
+Ademas de conectar los perifericos necesarios para interactuar con la computadora del
+robot, tales como: monitor, teclado y raton
+
+Una vez considerado lo anterior, encendemos el robot. A continuacion abrimos una terminal
+con la combinacion de teclas ctrl+alt+t y dentro de la misma ingresamos el siguiente
+comando para obtener la direcci´on IP del robot.
+$ ifconfig
+
+A continuacion abrimos una nueva terminal con la combinacion de teclas ctrl+shift+t e
+ingresamos el siguiente comando:
+$ gedit ~/.bashrc
+
+Lo anterior nos abrira el archivo bashrc, nos dirigimos a la parte inferior del mismo y
+editamos las lineas de codigo correspondientes de acuerdo a el siguiente ejemplo ilustrativo:
+
+export ROS_MASTER_URI=http://140.148.21.195:11311
+export ROS_HOSTNAME=140.148.21.116
+
+Guardamos los cambios y cerramos el archivo. Por ultimo aplicamos los cambios realizados
+ejecutando el siguiente comando en la terminal.
+$ source ~/.bashrc
+
+Es importante tomar nota del la direccion IP del robot puesto que sera de utilidad a la
+hora de controlarlo mediante comandos ssh. Si los pasos previos fueron completados de
+forma exitosa se procede a desconectar el robot de sus perif´ericos. Una vez completado lo
+anterior, el robot se encuentra listo para ser usado.
+
+
+-> NAVEGACION AUTONOMA
+En esta seccion se presenta un ejemplo practico para el control del robot Turtlebot a traves
+de ROS. El ejercicio se divide basicamente en las etapas de Mapeo y Navegacion, mismas
+que se describen detalladamente a continuacion. Debido a que estaremos ejecutando comandos tanto para la computadora remota 
+ası como para la computadora del robot, se recomienda asignar una terminal unicamente para los comandos de la PC remota y otra
+terminal para comandos del robot. Se sugiere tener ambas terminales a la vista. Desplegar pestañas nuevas en cada terminal 
+cada vez que se ejecute un nuevo comando. Los comandos para el robot seran ejecutados desde la PC remota a travs de comandos ssh.
+
+-> MAPEO
+Este paso consiste en efectuar el mapeo de un entorno con el robot. Para llevar a cabo
+el mapeo se sugiere tener cargada la baterıa del Turtlebot. De este modo ejecutamos los
+siguientes comandos uno en cada terminal:
+
+[PC REMOTA] Inicializamos ROS.
+$ roscore
+
+[TURTLEBOT] Activamos el driver del robot.
+$ ssh wafflepi@IP_TURTLEBOT3
+$ roslaunch turtlebot3_bringup turtlebot3_robot.launch
+
+[PC REMOTA] Ejecutamos los nodos para efectuar el mapeo.
+$ roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
+
+El comando anterior abrira Rviz en el cual mostrara el robot situado en el entorno actual,
+por lo que es necesario mover el robot para para dibujar el mapa deseado. El robot puede
+ser operado con su control de forma directa, se recomienda mover el robot a velocidades
+bajas. Una vez generado el mapa, procedemos a guardarlo.
+
+[PC REMOTA] Guardamos el mapa.
+$ rosrun map_server map_saver -f ~/map
+
+Una vez guardado el mapa, terminamos el proceso del mapeo con la combinaci´on de teclas
+ctrl+c.
+
+-> NAVEGACION
+En esta seccion haremos uso del mapa previamente generado para efectuar la navegacion
+autonoma del robot de un punto inicial a un punto final. 
+Para ello ejecutamos el siguiente comando:
+
+[PC REMOTA] Iniciamos el nodo para la navegacion.
+$ roslaunch turtlebot3_navigation turtlebot3_navigation.launch
+map_file:=$HOME/map.yaml
+
+Al ejecutar el comando anterior, nuevamente se abrira Rviz con el robot en una posicion
+arbitraria. Por lo que es necesario establecer la pose actual de forma aproximada con la
+ayuda de la flecha de color verde del boton 2D Pose Estimate de la barra de herramientas
+que se encuentra en la parte superior de la ventana. El origen de la flecha nos indica la
+posicion del robot y la direccion en la que apunta la flecha indica la orientacion del mismo.
+
+De esta forma la pose el robot se ajustara al mapa generado previamente. Sin embargo, se
+recomienda mover al robot con el control para ajustar el mapa de una forma mas exacta.
+El siguiente paso consiste en establecer la pose deseada del robot con la ayuda del boton
+2D Nav Goal.
+
+De esta forma podremos ver como el programa genera una trayectoria de forma automatica
+hacia la pose deseada, y fısicamente se puede ver como el robot sigue dicha trayectoria.
+
+Una vez que el robot alcance su pose final podemos asignar una nueva pose final y el
+proceso se repetira.
